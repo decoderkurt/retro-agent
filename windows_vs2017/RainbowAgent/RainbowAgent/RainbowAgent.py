@@ -14,6 +14,7 @@ from anyrl.models import rainbow_models
 from anyrl.rollouts import BatchedPlayer, PrioritizedReplayBuffer, NStepPlayer
 from anyrl.spaces import gym_space_vectorizer
 import gym_remote.exceptions as gre
+import time
 
 from custom_sonic_util import AllowBacktracking, make_env
 
