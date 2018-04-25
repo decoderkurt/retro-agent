@@ -17,6 +17,44 @@ import gym_remote.exceptions as gre
 
 from sonic_util import AllowBacktracking, make_env
 
+def make_env(stack=True, scale_rew=True):
+    """
+    Create an environment with some standard wrappers.
+    """
+    env = grc.RemoteEnv('tmp/sock')
+    env = CustomSonicDiscretizer(env)
+    if scale_rew:
+        env = RewardScaler(env)
+    env = WarpFrame(env)
+    if stack:
+        env = FrameStack(env, 4)
+    return env
+
+class CustomSonicDiscretizer(SonicDiscretizer):
+    """
+    Wrap a gym-retro environment and make it use discrete
+    actions for the Sonic game.
+    """
+    def __init__(self, env):
+        super(SonicDiscretizer, self).__init__(env)
+        buttons = ["B", "A", "MODE", "START", "UP", "DOWN", "LEFT", "RIGHT", "C", "Y", "X", "Z"]
+        ##actions = [['LEFT'], ['RIGHT'], ['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['DOWN'],
+        ##           ['DOWN', 'B'], ['B']]
+
+        actions = [['RIGHT'], ['RIGHT', 'B'], ['B']]
+
+        self._actions = []
+        for action in actions:
+            arr = np.array([False] * 12)
+            for button in action:
+                arr[buttons.index(button)] = True
+            self._actions.append(arr)
+        self.action_space = gym.spaces.Discrete(len(self._actions))
+
+    def action(self, a): # pylint: disable=W0221
+        return self._actions[a].copy()
+
+
 class RainbowPlayer(NStepPlayer):
     def _next_transition(self, history):
         if len(history) < self.num_steps:
@@ -46,32 +84,6 @@ class RainbowDQN(DQN):
               tf_schedules=(),
               handle_ep=lambda steps, rew: None,
               timeout=None):
-        """
-        Run an automated training loop.
-
-        This is meant to provide a convenient way to run a
-        standard training loop without any modifications.
-        You may get more flexibility by writing your own
-        training loop.
-
-        Args:
-          num_steps: the number of timesteps to run.
-          player: the Player for gathering experience.
-          replay_buffer: the ReplayBuffer for experience.
-          optimize_op: a TF Op to optimize the model.
-          train_interval: timesteps per training step.
-          target_interval: number of timesteps between
-            target network updates.
-          batch_size: the size of experience mini-batches.
-          min_buffer_size: minimum replay buffer size
-            before training is performed.
-          tf_schedules: a sequence of TFSchedules that are
-            updated with the number of steps taken.
-          handle_ep: called with information about every
-            completed episode.
-          timeout: if set, this is a number of seconds
-            after which the training loop should exit.
-        """
         sess = self.online_net.session
         sess.run(self.update_target)
         steps_taken = 0
