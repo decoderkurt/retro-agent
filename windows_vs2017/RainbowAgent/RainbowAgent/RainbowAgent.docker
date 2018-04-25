@@ -16,6 +16,6 @@ RUN . ~/venv/bin/activate && \
     pip install anyrl==0.11.17
 
 ADD RainbowAgent.py ./agent.py
-ADD sonic_util.py .
+ADD custom_sonic_util.py .
 
 CMD ["python", "-u", "/root/compo/agent.py"]
