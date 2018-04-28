@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2015
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "RainbowAgent", "RainbowAgent\RainbowAgent.pyproj", "{99D26DDA-8855-4CDD-A9AA-4FA52E271546}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "RainbowAgent", "RainbowAgent.pyproj", "{99D26DDA-8855-4CDD-A9AA-4FA52E271546}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,6 +18,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {791A75E9-ED16-41D7-B688-580D93D3F006}
+		SolutionGuid = {BA8E3861-EB73-4EEC-89EA-7591463ED790}
 	EndGlobalSection
 EndGlobal
