@@ -15,7 +15,6 @@ from anyrl.rollouts import BatchedPlayer, PrioritizedReplayBuffer, NStepPlayer
 from anyrl.spaces import gym_space_vectorizer
 import gym_remote.exceptions as gre
 import time
-
 from custom_sonic_util import AllowBacktracking, make_env
 
 class RainbowPlayer(NStepPlayer):
@@ -24,6 +23,7 @@ class RainbowPlayer(NStepPlayer):
             if not history[-1]['is_last']:
                 return None
         res = history[0].copy()
+        print(res['info'])
         res['rewards'] = [h['rewards'][0] for h in history[:self.num_steps]]
         res['total_reward'] += sum(h['rewards'][0] for h in history[1:self.num_steps])
         if len(history) >= self.num_steps:
@@ -86,7 +86,7 @@ def main():
                                   gym_space_vectorizer(env.observation_space),
                                   min_val=-200,
                                   max_val=200))
-        player = NStepPlayer(BatchedPlayer(env, dqn.online_net), 3)
+        player = RainbowPlayer(BatchedPlayer(env, dqn.online_net), 3)
         optimize = dqn.optimize(learning_rate=1e-4)
         sess.run(tf.global_variables_initializer())
         dqn.train(num_steps=2000000, # Make sure an exception arrives before we stop.
