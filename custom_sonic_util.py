@@ -53,7 +53,7 @@ class CustomSonicDiscretizer(SonicDiscretizer):
         ##actions = [['LEFT'], ['RIGHT'], ['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['DOWN'],
         ##           ['DOWN', 'B'], ['B']]
 
-        actions = [['RIGHT'], ['RIGHT', 'B'], ['B']]
+        actions = [['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['B']]
 
         self._actions = []
         for action in actions:

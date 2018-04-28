@@ -38,6 +38,7 @@ class RainbowPlayer(NStepPlayer):
             if not history:
                 del self._ep_to_history[ep_id]
         return res
+
     def _next_transition(self, history):
         if len(history) < self.num_steps:
             if not history[-1]['is_last']:
