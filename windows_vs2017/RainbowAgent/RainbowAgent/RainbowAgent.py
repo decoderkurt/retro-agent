@@ -18,12 +18,31 @@ import time
 from custom_sonic_util import AllowBacktracking, make_env
 
 class RainbowPlayer(NStepPlayer):
+    def _play_once(self):
+        for trans in self.player.play():
+            assert len(trans['rewards']) == 1
+            ep_id = trans['episode_id']
+            if ep_id in self._ep_to_history:
+                self._ep_to_history[ep_id].append(trans)
+            else:
+                self._ep_to_history[ep_id] = [trans]
+        res = []
+        for ep_id, history in list(self._ep_to_history.items()):
+            while history:
+               # print(ep_id, ': history ' ,history)
+                trans = self._next_transition(history)
+                print(ep_id, ': trans info' ,trans['info'])
+                if trans is None:
+                    break
+                res.append(trans)
+            if not history:
+                del self._ep_to_history[ep_id]
+        return res
     def _next_transition(self, history):
         if len(history) < self.num_steps:
             if not history[-1]['is_last']:
                 return None
         res = history[0].copy()
-        print(res['info'])
         res['rewards'] = [h['rewards'][0] for h in history[:self.num_steps]]
         res['total_reward'] += sum(h['rewards'][0] for h in history[1:self.num_steps])
         if len(history) >= self.num_steps:
