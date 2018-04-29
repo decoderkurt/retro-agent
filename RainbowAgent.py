@@ -7,19 +7,59 @@ implementation.
 
 import tensorflow as tf
 
+import time
 from anyrl.algos import DQN
 from anyrl.envs import BatchedGymEnv
 from anyrl.envs.wrappers import BatchedFrameStack
 from anyrl.models import rainbow_models
 from anyrl.rollouts import BatchedPlayer, PrioritizedReplayBuffer, NStepPlayer
+from anyrl.rollouts.rollers import _reduce_states, _inject_state, _reduce_model_outs
 from anyrl.spaces import gym_space_vectorizer
 import gym_remote.exceptions as gre
-import time
 from custom_sonic_util import AllowBacktracking, make_env
+
+
+class RainbowBatchedPlayer(BatchedPlayer):
+     def _step_sub_batch(self, sub_batch):
+        model_outs = self.model.step(self._last_obses[sub_batch], self._cur_states[sub_batch])
+        self.batched_env.step_start(model_outs['actions'], sub_batch=sub_batch)
+        outs = self.batched_env.step_wait(sub_batch=sub_batch)
+        end_time = time.time()
+        transitions = []
+        for i, (obs, rew, done, info) in enumerate(zip(*outs)):
+            self._total_rewards[sub_batch][i] += rew
+            #print(obs, ' ', rew, ' ', done, ' ',info)
+           # print(rew, ' ', done, ' ',info)
+            transitions.append({
+                'obs': self._last_obses[sub_batch][i],
+                'model_outs': _reduce_model_outs(model_outs, i),
+                'rewards': [rew],
+                'new_obs': (obs if not done else None),
+                'info': info,
+                'start_state': _reduce_states(self._cur_states[sub_batch], i),
+                'episode_id': self._episode_ids[sub_batch][i],
+                'episode_step': self._episode_steps[sub_batch][i],
+                'end_time': end_time,
+                'is_last': done,
+                'total_reward': self._total_rewards[sub_batch][i]
+            })
+            if done:
+                _inject_state(model_outs['states'], self.model.start_state(1), i)
+                self._episode_ids[sub_batch][i] = self._next_episode_id
+                self._next_episode_id += 1
+                self._episode_steps[sub_batch][i] = 0
+                self._total_rewards[sub_batch][i] = 0.0
+            else:
+                self._episode_steps[sub_batch][i] += 1
+        self._cur_states[sub_batch] = model_outs['states']
+        self._last_obses[sub_batch] = outs[0]
+        return transitions
 
 class RainbowPlayer(NStepPlayer):
     def _play_once(self):
         for trans in self.player.play():
+        #    if len(trans['info']) > 0:
+        #        print(trans['info'])
             assert len(trans['rewards']) == 1
             ep_id = trans['episode_id']
             if ep_id in self._ep_to_history:
@@ -106,7 +146,7 @@ def main():
                                   gym_space_vectorizer(env.observation_space),
                                   min_val=-200,
                                   max_val=200))
-        player = RainbowPlayer(BatchedPlayer(env, dqn.online_net), 3)
+        player = RainbowPlayer(RainbowBatchedPlayer(env, dqn.online_net), 3)
         optimize = dqn.optimize(learning_rate=1e-4)
         sess.run(tf.global_variables_initializer())
         dqn.train(num_steps=2000000, # Make sure an exception arrives before we stop.

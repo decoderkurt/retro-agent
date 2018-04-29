@@ -53,7 +53,7 @@ class CustomSonicDiscretizer(SonicDiscretizer):
         ##actions = [['LEFT'], ['RIGHT'], ['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['DOWN'],
         ##           ['DOWN', 'B'], ['B']]
 
-        actions = [['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['B']]
+        actions = [['LEFT'] ,['RIGHT'] , ['RIGHT', 'DOWN'], ['B']]
 
         self._actions = []
         for action in actions:
@@ -95,7 +95,9 @@ class AllowBacktracking(gym.Wrapper):
 
     def step(self, action): # pylint: disable=E0202
         obs, rew, done, info = self.env.step(action)
+        #print(self._max_x, ' ', rew, ' ' , self._cur_x)
         self._cur_x += rew
-        rew = max(0, self._cur_x - self._max_x)
+        #if (rew <= 0 and rew >= -5):
+        rew = max(-0.01, self._cur_x - self._max_x)
         self._max_x = max(self._max_x, self._cur_x)
         return obs, rew, done, info
