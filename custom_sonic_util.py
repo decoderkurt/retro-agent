@@ -117,6 +117,6 @@ class AllowBacktracking(gym.Wrapper):
         else:
             self._prev_rew = rew
             self._continous_zero_rew_time = 0
-        print('### ', rew, ' ', self._continous_zero_rew_time)
+        #print('### ', rew, ' ', self._continous_zero_rew_time)
         
         return obs, rew, done, info
