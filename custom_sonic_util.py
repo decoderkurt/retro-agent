@@ -52,10 +52,10 @@ class CustomSonicDiscretizer(SonicDiscretizer):
     def __init__(self, env):
         super(SonicDiscretizer, self).__init__(env)
         buttons = ["B", "A", "MODE", "START", "UP", "DOWN", "LEFT", "RIGHT", "C", "Y", "X", "Z"]
-        ##actions = [['LEFT'], ['RIGHT'], ['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['DOWN'],
-        ##           ['DOWN', 'B'], ['B']]
+        actions = [['LEFT'], ['RIGHT'], ['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['DOWN'],
+                  ['DOWN', 'B'], ['B']]
 
-        actions = [['LEFT'] ,['RIGHT'] , ['RIGHT', 'DOWN'], ['B']]
+        #actions = [['LEFT'] ,['RIGHT'] , ['RIGHT', 'DOWN'], ['B']]
 
         self._actions = []
         for action in actions:
@@ -113,7 +113,7 @@ class AllowBacktracking(gym.Wrapper):
         if (rew >= 0 and rew < 1):
             if (self._continous_zero_rew_time < 10):
                 self._continous_zero_rew_time += 1
-                rew -= self._continous_zero_rew_time
+                rew -= self._continous_zero_rew_time*2
                # print('escape from stuck %d %d' % (self._continous_zero_rew_time, rew))
             else:
                 self._continous_zero_rew_time = 0
