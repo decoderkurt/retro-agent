@@ -101,29 +101,30 @@ class AllowBacktracking(gym.Wrapper):
 
     def step(self, action): # pylint: disable=E0202
         obs, rew, done, info = self.env.step(action)
-        
-       #print(self._max_x, ' ', rew, ' ' , self._cur_x)
-        self._cur_x += rew
-        #if (rew <= 0 and rew >= -5):
-        rew = max(0, self._cur_x - self._max_x)
-       ## print('### ', obs)
-     
-        if (done):
-           delta = datetime.now() -  self._start_time
-           if (delta.seconds <= 60):
-                rew = -10
-                self._cur_x += rew
+   
+        # Allow Backtracking
+        if (rew < 0):
+            self._cur_x += rew
+            rew = max(0, self._cur_x - self._max_x)
 
+        # escape from stuck
         if (rew >= 0 and rew < 1):
             if (self._continous_zero_rew_time <= 10):
                 ++self._continous_zero_rew_time
-                rew = -10
-                self._cur_x += rew
+                rew -= self._continous_zero_rew_time
             else:
                 self._continous_zero_rew_time = 0
         else:
             self._continous_zero_rew_time = 0
-        #print('### ', rew, ' ', self._continous_zero_rew_time)
 
+        # live long
+        if (done):
+           delta = datetime.now() -  self._start_time
+           if (delta.seconds <= 60):
+                rew -= delta.seconds
+           else:
+                rew += 60
+
+        self._cur_x += rew
         self._max_x = max(self._max_x, self._cur_x)
         return obs, rew, done, info
