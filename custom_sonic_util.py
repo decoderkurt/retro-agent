@@ -104,14 +104,17 @@ class AllowBacktracking(gym.Wrapper):
    
         # Allow Backtracking
         if (rew < 0):
+            #print('Allow Backtracking %d' %rew)
             self._cur_x += rew
             rew = max(0, self._cur_x - self._max_x)
 
+
         # escape from stuck
         if (rew >= 0 and rew < 1):
-            if (self._continous_zero_rew_time <= 10):
-                ++self._continous_zero_rew_time
+            if (self._continous_zero_rew_time < 10):
+                self._continous_zero_rew_time += 1
                 rew -= self._continous_zero_rew_time
+               # print('escape from stuck %d %d' % (self._continous_zero_rew_time, rew))
             else:
                 self._continous_zero_rew_time = 0
         else:
@@ -124,6 +127,7 @@ class AllowBacktracking(gym.Wrapper):
                 rew -= delta.seconds
            else:
                 rew += 60
+           #print('live long %d %d' % (delta.seconds, rew))
 
         self._cur_x += rew
         self._max_x = max(self._max_x, self._cur_x)
