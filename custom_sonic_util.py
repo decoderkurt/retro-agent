@@ -123,10 +123,10 @@ class AllowBacktracking(gym.Wrapper):
         # live long
         if (done):
            delta = datetime.now() -  self._start_time
-           if (delta.seconds <= 60):
+           if (delta.seconds <= 120):
                 rew -= delta.seconds
            else:
-                rew += 60
+                rew += delta.seconds
            #print('live long %d %d' % (delta.seconds, rew))
 
         self._cur_x += rew
