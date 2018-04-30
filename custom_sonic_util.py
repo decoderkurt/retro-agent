@@ -87,10 +87,14 @@ class AllowBacktracking(gym.Wrapper):
         super(AllowBacktracking, self).__init__(env)
         self._cur_x = 0
         self._max_x = 0
+        self._index_loop = 0
+        self._prev_rew = 0
 
     def reset(self, **kwargs): # pylint: disable=E0202
         self._cur_x = 0
         self._max_x = 0
+        self._index_loop = 0
+        self._prev_rew = 0
         return self.env.reset(**kwargs)
 
     def step(self, action): # pylint: disable=E0202
@@ -100,4 +104,5 @@ class AllowBacktracking(gym.Wrapper):
         #if (rew <= 0 and rew >= -5):
         rew = max(-0.01, self._cur_x - self._max_x)
         self._max_x = max(self._max_x, self._cur_x)
+        print('### ', obs)
         return obs, rew, done, info
