@@ -7,6 +7,8 @@ import numpy as np
 
 from baselines.common.atari_wrappers import WarpFrame, FrameStack
 import gym_remote.client as grc
+import time
+from datetime import datetime
 
 def make_env(stack=True, scale_rew=True):
     """
@@ -88,13 +90,13 @@ class AllowBacktracking(gym.Wrapper):
         self._cur_x = 0
         self._max_x = 0
         self._continous_zero_rew_time = 0
-        self._prev_rew = 0
-
+        self._start_time = datetime.now()
+        
     def reset(self, **kwargs): # pylint: disable=E0202
         self._cur_x = 0
         self._max_x = 0
         self._continous_zero_rew_time = 0
-        self._prev_rew = 0
+        self._start_time = datetime.now()
         return self.env.reset(**kwargs)
 
     def step(self, action): # pylint: disable=E0202
@@ -104,19 +106,24 @@ class AllowBacktracking(gym.Wrapper):
         self._cur_x += rew
         #if (rew <= 0 and rew >= -5):
         rew = max(0, self._cur_x - self._max_x)
-        self._max_x = max(self._max_x, self._cur_x)
        ## print('### ', obs)
+     
+        if (done):
+           delta = datetime.now() -  self._start_time
+           if (delta.seconds <= 60):
+                rew = -10
+                self._cur_x += rew
 
         if (rew >= 0 and rew < 1):
             if (self._continous_zero_rew_time <= 10):
                 ++self._continous_zero_rew_time
-                self._prev_rew = 0
                 rew = -10
+                self._cur_x += rew
             else:
                 self._continous_zero_rew_time = 0
         else:
-            self._prev_rew = rew
             self._continous_zero_rew_time = 0
         #print('### ', rew, ' ', self._continous_zero_rew_time)
-        
+
+        self._max_x = max(self._max_x, self._cur_x)
         return obs, rew, done, info
