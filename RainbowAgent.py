@@ -135,6 +135,10 @@ class RainbowDQN(DQN):
               timeout=None):
         sess = self.online_net.session
         sess.run(self.update_target)
+        
+        #saver
+        #saver = tf.train.Saver()
+
         steps_taken = 0
         next_target_update = target_interval
         next_train_step = train_interval
@@ -159,6 +163,9 @@ class RainbowDQN(DQN):
                 if steps_taken >= next_target_update:
                     next_target_update = steps_taken + target_interval
                     sess.run(self.update_target)
+                #save
+                #ckpt_path = saver.save(sess, "/root/compo/rainbow_agent.ckpt")
+                #print("ckpt saved as : ", ckpt_path)
 
 def main():
     """Run DQN until the environment throws an exception."""
@@ -166,6 +173,9 @@ def main():
     env = BatchedFrameStack(BatchedGymEnv([[env]]), num_images=4, concat=False)
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True # pylint: disable=E1101
+    
+
+
     with tf.Session(config=config) as sess:
         dqn = RainbowDQN(*rainbow_models(sess,
                                   env.action_space.n,
@@ -183,7 +193,7 @@ def main():
                   target_interval=8192,
                   batch_size=32,
                   min_buffer_size=20000)
-
+        
 if __name__ == '__main__':
     try:
         main()
