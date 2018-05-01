@@ -111,9 +111,9 @@ class AllowBacktracking(gym.Wrapper):
 
         # escape from stuck
         if (rew >= 0 and rew < 1):
-            if (self._continous_zero_rew_time < 10):
+            if (self._continous_zero_rew_time < 20):
                 self._continous_zero_rew_time += 1
-                rew -= self._continous_zero_rew_time*2
+                rew -= self._continous_zero_rew_time*3
                # print('escape from stuck %d %d' % (self._continous_zero_rew_time, rew))
             else:
                 self._continous_zero_rew_time = 0
@@ -123,7 +123,7 @@ class AllowBacktracking(gym.Wrapper):
         # live long
         if (done):
            delta = datetime.now() -  self._start_time
-           if (delta.seconds <= 120):
+           if (delta.seconds <= 180):
                 rew -= delta.seconds
            else:
                 rew += delta.seconds
