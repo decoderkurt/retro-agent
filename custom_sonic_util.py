@@ -102,13 +102,16 @@ class RewardPolicy(gym.Wrapper):
     def step(self, action): # pylint: disable=E0202
         obs, rew, done, info = self.env.step(action)
    
+        #Encourage Long distance
+        if (rew > 10):
+            rew *= 2
+
         # Allow Backtracking
         if (rew < 0):
             #print('Allow Backtracking %d' %rew)
             self._cur_x += rew
             rew = max(0, self._cur_x - self._max_x)
-
-
+        
         # escape from stuck
         if (rew >= 0 and rew < 1):
             if (self._continous_zero_rew_time < 20):
