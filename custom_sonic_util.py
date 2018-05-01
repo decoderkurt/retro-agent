@@ -114,9 +114,9 @@ class RewardPolicy(gym.Wrapper):
         
         # escape from stuck
         if (rew >= 0 and rew < 1):
-            if (self._continous_zero_rew_time < 20):
+            if (self._continous_zero_rew_time < 10):
+                rew -= self._continous_zero_rew_time*10
                 self._continous_zero_rew_time += 1
-                rew -= self._continous_zero_rew_time*3
                # print('escape from stuck %d %d' % (self._continous_zero_rew_time, rew))
             else:
                 self._continous_zero_rew_time = 0
