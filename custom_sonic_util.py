@@ -52,8 +52,7 @@ class CustomSonicDiscretizer(SonicDiscretizer):
     def __init__(self, env):
         super(SonicDiscretizer, self).__init__(env)
         buttons = ["B", "A", "MODE", "START", "UP", "DOWN", "LEFT", "RIGHT", "C", "Y", "X", "Z"]
-        actions = [['LEFT'], ['RIGHT'], ['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['DOWN'],
-                  ['DOWN', 'B'], ['B']]
+        actions = [['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['B']]
 
         #actions = [['LEFT'] ,['RIGHT'] , ['RIGHT', 'DOWN'], ['B']]
 
@@ -90,22 +89,21 @@ class RewardPolicy(gym.Wrapper):
         self._cur_x = 0
         self._max_x = 0
         self._continous_zero_rew_time = 0
+        self._continous_plus_rew_time = 0
         self._start_time = datetime.now()
         
     def reset(self, **kwargs): # pylint: disable=E0202
         self._cur_x = 0
         self._max_x = 0
         self._continous_zero_rew_time = 0
+        self._continous_plus_rew_time = 0
         self._start_time = datetime.now()
         return self.env.reset(**kwargs)
 
     def step(self, action): # pylint: disable=E0202
         obs, rew, done, info = self.env.step(action)
+        #print('Init ',rew, action)
    
-        #Encourage Long distance
-        if (rew > 10):
-            rew *= 3
-
         # Allow Backtracking
         backTracked = False
         backTrackAbsRew = 0
@@ -122,23 +120,28 @@ class RewardPolicy(gym.Wrapper):
         if (((backTracked and (backTrackAbsRew < 1))) or \
             (rew >= 0 and rew < 1)):
             if (self._continous_zero_rew_time < 10):
-                rew -= 5
+                rew -= 3
                 self._continous_zero_rew_time += 1
-                #print('escape from stuck %d %d' % (self._continous_zero_rew_time, rew))
+                self._continous_plus_rew_time = 0
+                #print('stuck %d %d' % (self._continous_zero_rew_time, rew))
             else:
                 rew -= 100
                 self._continous_zero_rew_time = 0
+                self._continous_plus_rew_time = 0
+                #print('failed from escape %d %d' % (self._continous_zero_rew_time, rew))
         else:
-               rew += 3
+               #print('SUCCESSED escape %d %d %d' % (self._continous_plus_rew_time, self._continous_zero_rew_time, rew))
                self._continous_zero_rew_time = 0
+               self._continous_plus_rew_time += 1
+               rew += self._continous_plus_rew_time
 
         # live long
         if (done):
            delta = datetime.now() -  self._start_time
-           if (delta.seconds <= 180):
-                rew -= delta.seconds
+           if (delta.seconds <= 120):
+                rew -= 100
            else:
-                rew += delta.seconds
+                rew += 30
            #print('live long %d %d' % (delta.seconds, rew))
 
         return obs, rew, done, info
