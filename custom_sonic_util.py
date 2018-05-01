@@ -104,17 +104,23 @@ class RewardPolicy(gym.Wrapper):
    
         #Encourage Long distance
         if (rew > 10):
-            rew *= 10
+            rew *= 3
 
         # Allow Backtracking
+        backTracked = False
+        backTrackAbsRew = 0
+
         if (rew < 0):
             #print('Allow Backtracking %d' %rew)
+            backTracked = True
+            backTrackAbsRew = abs(rew)
             self._cur_x += rew
             rew = max(0, self._cur_x - self._max_x)
             self._max_x = max(self._max_x, self._cur_x)
         
         # escape from stuck
-        if (rew >= 0 and rew < 1):
+        if (((backTracked and (backTrackAbsRew < 1))) or \
+            (rew >= 0 and rew < 1)):
             if (self._continous_zero_rew_time < 10):
                 rew -= self._continous_zero_rew_time*10
                 self._continous_zero_rew_time += 1
