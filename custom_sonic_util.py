@@ -111,10 +111,10 @@ class RewardPolicy(gym.Wrapper):
         if (rew < 0):
             backTracked = True
             backTrackAbsRew = abs(rew)
-            self._cur_x += rew
-            rew = max(0, self._cur_x - self._max_x)
-            self._max_x = max(self._max_x, self._cur_x)
-            #print('Allow Backtracking ',rew, backTrackAbsRew)
+		self._cur_x += rew
+		rew = max(0, self._cur_x - self._max_x)
+		self._max_x = max(self._max_x, self._cur_x)
+		#print('Allow Backtracking ',rew, backTrackAbsRew)
         
         # escape from stuck
         if (((backTracked and (backTrackAbsRew < 1))) or \
