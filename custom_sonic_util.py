@@ -52,7 +52,7 @@ class CustomSonicDiscretizer(SonicDiscretizer):
     def __init__(self, env):
         super(SonicDiscretizer, self).__init__(env)
         buttons = ["B", "A", "MODE", "START", "UP", "DOWN", "LEFT", "RIGHT", "C", "Y", "X", "Z"]
-        actions = [['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['B']]
+        actions = [['RIGHT'], ['RIGHT', 'B'], ['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['B']]
 
         #actions = [['LEFT'] ,['RIGHT'] , ['RIGHT', 'DOWN'], ['B']]
 
