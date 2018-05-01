@@ -111,24 +111,26 @@ class RewardPolicy(gym.Wrapper):
         backTrackAbsRew = 0
 
         if (rew < 0):
-            #print('Allow Backtracking %d' %rew)
             backTracked = True
             backTrackAbsRew = abs(rew)
             self._cur_x += rew
             rew = max(0, self._cur_x - self._max_x)
             self._max_x = max(self._max_x, self._cur_x)
+            #print('Allow Backtracking ',rew, backTrackAbsRew)
         
         # escape from stuck
         if (((backTracked and (backTrackAbsRew < 1))) or \
             (rew >= 0 and rew < 1)):
             if (self._continous_zero_rew_time < 10):
-                rew -= self._continous_zero_rew_time*10
+                rew -= 5
                 self._continous_zero_rew_time += 1
-               # print('escape from stuck %d %d' % (self._continous_zero_rew_time, rew))
+                #print('escape from stuck %d %d' % (self._continous_zero_rew_time, rew))
             else:
+                rew -= 100
                 self._continous_zero_rew_time = 0
         else:
-            self._continous_zero_rew_time = 0
+               rew += 3
+               self._continous_zero_rew_time = 0
 
         # live long
         if (done):
