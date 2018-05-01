@@ -104,7 +104,7 @@ class RewardPolicy(gym.Wrapper):
    
         #Encourage Long distance
         if (rew > 10):
-            rew *= 2
+            rew *= 10
 
         # Allow Backtracking
         if (rew < 0):
