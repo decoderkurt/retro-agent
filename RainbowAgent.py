@@ -16,7 +16,7 @@ from anyrl.rollouts import BatchedPlayer, PrioritizedReplayBuffer, NStepPlayer
 from anyrl.rollouts.rollers import _reduce_states, _inject_state, _reduce_model_outs
 from anyrl.spaces import gym_space_vectorizer
 import gym_remote.exceptions as gre
-from custom_sonic_util import AllowBacktracking, make_env
+from custom_sonic_util import RewardPolicy, make_env
 
 
 class RainbowBatchedPlayer(BatchedPlayer):
@@ -94,6 +94,32 @@ class RainbowPlayer(NStepPlayer):
         return res
 
 class RainbowDQN(DQN):
+    def __init__(self, online_net, target_net, discount=0.90):
+
+        self.online_net = online_net
+        self.target_net = target_net
+        self.discount = discount
+
+        obs_shape = (None,) + online_net.obs_vectorizer.out_shape
+        self.obses_ph = tf.placeholder(online_net.input_dtype, shape=obs_shape)
+        self.actions_ph = tf.placeholder(tf.int32, shape=(None,))
+        self.rews_ph = tf.placeholder(tf.float32, shape=(None,))
+        self.new_obses_ph = tf.placeholder(online_net.input_dtype, shape=obs_shape)
+        self.terminals_ph = tf.placeholder(tf.bool, shape=(None,))
+        self.discounts_ph = tf.placeholder(tf.float32, shape=(None,))
+        self.weights_ph = tf.placeholder(tf.float32, shape=(None,))
+
+        losses = online_net.transition_loss(target_net, self.obses_ph, self.actions_ph,
+                                            self.rews_ph, self.new_obses_ph, self.terminals_ph,
+                                            self.discounts_ph)
+        self.losses = self.weights_ph * losses
+        self.loss = tf.reduce_mean(self.losses)
+
+        assigns = []
+        for dst, src in zip(target_net.variables, online_net.variables):
+            assigns.append(tf.assign(dst, src))
+        self.update_target = tf.group(*assigns)
+
      # pylint: disable=R0913,R0914
     def train(self,
               num_steps,
@@ -136,7 +162,7 @@ class RainbowDQN(DQN):
 
 def main():
     """Run DQN until the environment throws an exception."""
-    env = AllowBacktracking(make_env(stack=False, scale_rew=False))
+    env = RewardPolicy(make_env(stack=False, scale_rew=False))
     env = BatchedFrameStack(BatchedGymEnv([[env]]), num_images=4, concat=False)
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True # pylint: disable=E1101

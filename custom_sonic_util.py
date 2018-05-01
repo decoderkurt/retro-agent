@@ -78,7 +78,7 @@ class RewardScaler(gym.RewardWrapper):
     def reward(self, reward):
         return reward * 0.01
 
-class AllowBacktracking(gym.Wrapper):
+class RewardPolicy(gym.Wrapper):
     """
     Use deltas in max(X) as the reward, rather than deltas
     in X. This way, agents are not discouraged too heavily
@@ -86,7 +86,7 @@ class AllowBacktracking(gym.Wrapper):
     head-on in the level.
     """
     def __init__(self, env):
-        super(AllowBacktracking, self).__init__(env)
+        super(RewardPolicy, self).__init__(env)
         self._cur_x = 0
         self._max_x = 0
         self._continous_zero_rew_time = 0
