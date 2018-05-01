@@ -111,6 +111,7 @@ class RewardPolicy(gym.Wrapper):
             #print('Allow Backtracking %d' %rew)
             self._cur_x += rew
             rew = max(0, self._cur_x - self._max_x)
+            self._max_x = max(self._max_x, self._cur_x)
         
         # escape from stuck
         if (rew >= 0 and rew < 1):
@@ -132,6 +133,4 @@ class RewardPolicy(gym.Wrapper):
                 rew += delta.seconds
            #print('live long %d %d' % (delta.seconds, rew))
 
-        self._cur_x += rew
-        self._max_x = max(self._max_x, self._cur_x)
         return obs, rew, done, info
