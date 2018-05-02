@@ -52,7 +52,7 @@ class CustomSonicDiscretizer(SonicDiscretizer):
     def __init__(self, env):
         super(SonicDiscretizer, self).__init__(env)
         buttons = ["B", "A", "MODE", "START", "UP", "DOWN", "LEFT", "RIGHT", "C", "Y", "X", "Z"]
-        actions = [['RIGHT'], ['RIGHT', 'B'], ['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['B']]
+        actions = [['RIGHT', 'B'], ['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['B']]
 
         #actions = [['LEFT'] ,['RIGHT'] , ['RIGHT', 'DOWN'], ['B']]
 
@@ -88,6 +88,7 @@ class RewardPolicy(gym.Wrapper):
         super(RewardPolicy, self).__init__(env)
         self._cur_x = 0
         self._max_x = 0
+        self._prev_rew  = 0
         self._continous_zero_rew_time = 0
         self._continous_plus_rew_time = 0
         self._start_time = datetime.now()
@@ -95,6 +96,7 @@ class RewardPolicy(gym.Wrapper):
     def reset(self, **kwargs): # pylint: disable=E0202
         self._cur_x = 0
         self._max_x = 0
+        self._prev_rew  = 0
         self._continous_zero_rew_time = 0
         self._continous_plus_rew_time = 0
         self._start_time = datetime.now()
@@ -117,6 +119,13 @@ class RewardPolicy(gym.Wrapper):
         self._max_x = max(self._max_x, self._cur_x)
 	    #print('Allow Backtracking ',rew, backTrackAbsRew)
         
+        # rew speed
+        deltaRew = rew - self._prev_rew
+        self._prev_rew = rew
+        if (deltaRew > 3):
+            #print (deltaRew)
+            rew *= deltaRew
+
         # escape from stuck
         if (((backTracked and (backTrackAbsRew < 1))) or \
             (rew >= 0 and rew < 1)):
