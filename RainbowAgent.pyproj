@@ -4,13 +4,14 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>99d26dda-8855-4cdd-a9aa-4fa52e271546</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>RainbowAgent.py</StartupFile>
+    <StartupFile>PPO2Agent.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>RainbowAgent</Name>
     <RootNamespace>RainbowAgent</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,9 +23,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="custom_sonic_util.py" />
+    <Compile Include="PPO2Agent.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="RainbowAgent.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="PPO2Agent.docker" />
     <Content Include="RainbowAgent.docker" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
