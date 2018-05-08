@@ -94,7 +94,7 @@ class RainbowPlayer(NStepPlayer):
         return res
 
 class RainbowDQN(DQN):
-    def __init__(self, online_net, target_net, discount=0.9999):
+    def __init__(self, online_net, target_net, discount=1):
 
         self.online_net = online_net
         self.target_net = target_net
