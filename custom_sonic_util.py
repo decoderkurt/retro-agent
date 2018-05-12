@@ -31,7 +31,7 @@ class CustomSonicDiscretizer(gym.ActionWrapper):
     def __init__(self, env):
         super(CustomSonicDiscretizer, self).__init__(env)
         buttons = ["B", "A", "MODE", "START", "UP", "DOWN", "LEFT", "RIGHT", "C", "Y", "X", "Z"]
-        actions = [['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['DOWN', 'B'], ['B']]
+        actions = [['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['B']]
 
         self._actions = []
         for action in actions:
