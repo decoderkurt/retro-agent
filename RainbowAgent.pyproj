@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>99d26dda-8855-4cdd-a9aa-4fa52e271546</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>PPO2Agent.py</StartupFile>
+    <StartupFile>RainbowAgent.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
