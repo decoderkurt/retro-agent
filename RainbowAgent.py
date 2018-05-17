@@ -187,7 +187,7 @@ def main():
         sess.run(tf.global_variables_initializer())
         dqn.train(num_steps=2000000, # Make sure an exception arrives before we stop.
                   player=player,
-                  replay_buffer=PrioritizedReplayBuffer(500000, 0.6, 0.6, epsilon=0.1),
+                  replay_buffer=PrioritizedReplayBuffer(500000, 0.7, 0.7, epsilon=0.1),
                   optimize_op=optimize,
                   train_interval=1,
                   target_interval=8192,
